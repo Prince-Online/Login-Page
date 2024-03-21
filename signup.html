@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  *{
+    padding: 0;
+    margin: 0;
+  }
+  .input-email{
+    width: 185px;
+    padding: 4px;
+    margin-top: 10px;
+  }
+  .getotp{
+    padding: 4px;
+    margin-top: 10px;
+    width: 195px;
+  }
+  #emailForm{
+    text-align: center;
+  }
+</style>
+<title>OTP Verification</title>
+</head>
+<body>
+  <form id="emailForm">
+    <input type="email" id="email" required placeholder="Email" class="input-email"><br>
+    <input type="email" id="confirmEmail" required placeholder="Confirm Email" class="input-email"><br>
+    <button type="button" onclick="getOTP()" class="getotp">Get OTP</button>
+  </form>
+
+  <div id="otpVerification" style="display:none;">
+    <label for="otp">Enter OTP:</label>
+    <input type="text" id="otp" required>
+    <button type="button" onclick="verifyOTP()" class="getotp">Verify OTP</button>
+  </div>
+
+  <div id="additionalDetails" style="display:none;">
+    <h2>Additional Details</h2>
+    <form id="detailsForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" required><br>
+      <label for="name">Name:</label>
+      <input type="text" id="name" required><br>
+      <label for="password">Password:</label>
+      <input type="password" id="password" required><br>
+      <button type="button" onclick="submitDetails()">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    function getOTP() {
+      var email = document.getElementById("email").value;
+      var confirmEmail = document.getElementById("confirmEmail").value;
+
+      if (email !== confirmEmail) {
+        alert("Emails do not match!");
+        return;
+      }
+
+      // Send email and request OTP from server
+      fetch("https://script.google.com/macros/s/AKfycbxTe2CSYxuvaCBxFvdr-j39ke3ZLV-6eZl0iVpmPP1BGQ_VouN4hX8hFOB7y8hdC8qpsA/exec?email=" + email)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(data => {
+        // Show OTP verification section
+        document.getElementById("otpVerification").style.display = "block";
+        console.log(data);
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+    }
+
+    function verifyOTP() {
+      var otp = document.getElementById("otp").value;
+
+      // Send OTP to server for verification
+      fetch("https://script.google.com/macros/s/AKfycbxTe2CSYxuvaCBxFvdr-j39ke3ZLV-6eZl0iVpmPP1BGQ_VouN4hX8hFOB7y8hdC8qpsA/exec?otp=" + otp)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(data => {
+        if (data === "verified") {
+          // Show additional details form
+          document.getElementById("additionalDetails").style.display = "block";
+        } else {
+          alert("Invalid OTP");
+        }
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+    }
+
+    function submitDetails() {
+      var username = document.getElementById("username").value;
+      var name = document.getElementById("name").value;
+      var password = document.getElementById("password").value;
+
+      // Send additional details to server for saving
+      fetch("https://script.google.com/macros/s/AKfycbxTe2CSYxuvaCBxFvdr-j39ke3ZLV-6eZl0iVpmPP1BGQ_VouN4hX8hFOB7y8hdC8qpsA/exec?username=" + username + "&name=" + name + "&password=" + password)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(data => {
+        alert(data); // Show response from server (success/failure message)
+        // Optionally, redirect user to another page after successful submission
+        // window.location.href = "ANOTHER_PAGE_URL";
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+    }
+  </script>
+</body>
+</html>
